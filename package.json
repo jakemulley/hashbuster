@@ -1,0 +1,34 @@
+{
+  "name": "hashbuster",
+  "version": "0.0.0",
+  "description": "Append an md5 hash to a file name or directory of files and inject the reference into a source file.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/jakemulley/hashbuster.git"
+  },
+  "keywords": [
+    "hashing",
+    "cache",
+    "cache",
+    "busting"
+  ],
+  "author": "Jake Mulley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jakemulley/hashbuster/issues"
+  },
+  "homepage": "https://github.com/jakemulley/hashbuster#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5"
+  },
+  "dependencies": {
+    "md5": "^2.0.0",
+    "minimist": "^1.2.0",
+    "path": "^0.12.7"
+  }
+}
