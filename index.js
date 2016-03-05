@@ -4,6 +4,17 @@ var md5 = require('md5');
 
 var path = 'public/_css';
 
+var rexMatchExtension = /(\.[\w\d_-]+)$/i;
+var rexMatchInject = /(<!--inject:([a-z]+)-->)(\s?.*?)(<!--inject-->)/gi;
+
+function generateLink(path) {
+  return '<link href="'+path+'" rel="stylesheet">';
+}
+
+function generateScript(path) {
+  return '<script src="'+path+'"></script>';
+}
+
 function rename() {
 
   fs.readdir(path, function(error, files) {
@@ -22,9 +33,8 @@ function rename() {
           return console.log('Error in reading file', absolutePath);
         }
 
-        var reg = new RegExp(/(\.[\w\d_-]+)$/i);
         var generatedHash = md5(buffer.toString());
-        var newFilePath = absolutePath.replace(reg, '.' + generatedHash + '$1');
+        var newFilePath = absolutePath.replace(rexMatchExtension, '.' + generatedHash + '$1');
 
         fs.rename(absolutePath, newFilePath, function(error) {
           if(error) {
@@ -42,7 +52,17 @@ function rename() {
 
 var source = 'public/index.html';
 
+function injectReplace(wtf, openTag, type, indentation, closeTag) {
+  console.log('wtf', wtf);
+  console.log('openTag', openTag);
+  console.log('type', type);
+  console.log('indentation', indentation);
+  console.log('closeTag', closeTag);
+}
+
 function inject() {
+
+  var links;
 
   fs.readFile(source, function(error, buffer) {
 
@@ -51,22 +71,25 @@ function inject() {
     }
 
     var sourceString = buffer.toString();
-    var reg = new RegExp(/(<!--inject:([a-z]+)-->)(\s?.*?)(<!--inject-->)/);
 
-    var newSource = sourceString.replace(reg, '$1'+'$3$3$4');
-    console.log(newSource);
+    fs.readdir(path, function(error, files) {
+
+      if(error) {
+        return console.log('Error in reading directory', path);
+      }
+
+      links = '';
+      for (var i = files.length - 1; i >= 0; i--) {
+        var absolutePath = path + '/' + files[i];
+        links = links + generateLink(absolutePath);
+      }
+
+      var newSource = sourceString.replace(rexMatchInject, injectReplace);
+      console.log(newSource);
+
+    });
 
   });
-
-  // fs.readdir(path, function(error, files) {
-
-  //   if(error) {
-  //     return console.log('Error in reading directory', error);
-  //   }
-
-  //   console.log(files);
-
-  // });
 
 }
 
