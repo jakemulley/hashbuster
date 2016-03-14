@@ -1,7 +1,5 @@
 'use strict';
 
-require('es6-promise').polyfill();
-
 var fs = require('fs');
 var md5 = require('md5');
 var objectAssign = require('object-assign');
@@ -29,7 +27,6 @@ var defaultOptions = {
     'js': null
   },
   basePaths: ['./public/_css', './public/_js'],
-  fileTypes: ['css', 'js'],
   hash: true,
   omit: './public',
   source: './public/index.html'
