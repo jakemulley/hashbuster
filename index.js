@@ -1,11 +1,10 @@
 var fs = require('fs');
-var path = require('path');
 var md5 = require('md5');
 
-var path = 'public/_css';
-
 var rexMatchExtension = /(\.[\w\d_-]+)$/i;
-var rexMatchInject = /(<!--inject:([a-z]+)-->)(\s?.*?)(<!--inject-->)/gi;
+var rexMatchInject = /(<!--inject:([a-z]+)-->)(\s?.*?)(<!--inject:stop-->)/gi;
+
+var path = 'public/_css';
 
 function generateLink(path) {
   return '<link href="'+path+'" rel="stylesheet">';
@@ -52,17 +51,18 @@ function rename() {
 
 var source = 'public/index.html';
 
-function injectReplace(wtf, openTag, type, indentation, closeTag) {
-  console.log('wtf', wtf);
-  console.log('openTag', openTag);
-  console.log('type', type);
-  console.log('indentation', indentation);
-  console.log('closeTag', closeTag);
+var links;
+
+function injectReplace(fullMatch, openingTag, tagType, indentation, closingTag) {
+  if(tagType == 'js') {
+    return '';
+  }
+  if(tagType == 'css') {
+    return links;
+  }
 }
 
 function inject() {
-
-  var links;
 
   fs.readFile(source, function(error, buffer) {
 
@@ -82,6 +82,9 @@ function inject() {
       for (var i = files.length - 1; i >= 0; i--) {
         var absolutePath = path + '/' + files[i];
         links = links + generateLink(absolutePath);
+        if(i == (files.length - 1)) {
+          links = links + '\n';
+        }
       }
 
       var newSource = sourceString.replace(rexMatchInject, injectReplace);
@@ -93,4 +96,5 @@ function inject() {
 
 }
 
+// rename();
 inject();
