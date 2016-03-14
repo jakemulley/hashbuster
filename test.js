@@ -1,2 +1,4 @@
-var should     = require('chai').should(),
-    hashbuster = require('../index');
+var expect     = require('chai').expect(),
+    hashbuster = require('./index');
+
+hashbuster();

@@ -4,7 +4,7 @@
   "description": "Append an md5 hash to a file name or directory of files and inject the reference into a source file.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -27,8 +27,10 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
+    "es6-promise": "^3.1.2",
     "md5": "^2.0.0",
     "minimist": "^1.2.0",
+    "object-assign": "^4.0.1",
     "path": "^0.12.7"
   }
 }
