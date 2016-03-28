@@ -1,7 +1,7 @@
 {
   "name": "hashbuster",
-  "version": "0.0.0",
-  "description": "Append an md5 hash to a file name or directory of files and inject the reference into a source file.",
+  "version": "0.0.1",
+  "description": "Append an md5 hash to file names.",
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec"
@@ -14,7 +14,11 @@
     "hashing",
     "cache",
     "cache",
-    "busting"
+    "busting",
+    "asset",
+    "md5",
+    "append",
+    "filename"
   ],
   "author": "Jake Mulley",
   "license": "MIT",
@@ -27,9 +31,10 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
+    "colors": "^1.1.2",
+    "deep-assign": "^2.0.0",
     "md5": "^2.0.0",
-    "minimist": "^1.2.0",
-    "object-assign": "^4.0.1",
-    "path": "^0.12.7"
+    "performance-now": "^0.2.0",
+    "q": "^1.4.1"
   }
 }

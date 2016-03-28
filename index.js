@@ -1,160 +1,153 @@
 'use strict';
 
-var fs = require('fs');
-var md5 = require('md5');
-var objectAssign = require('object-assign');
+// Required modules
+var colors      = require('colors'),
+    deepAssign  = require('deep-assign'),
+    fs          = require('fs'),
+    md5         = require('md5'),
+    path        = require('path'),
+    performance = require('performance-now'),
+    q           = require('q');
 
-var rexMatchExtension = /(\.[\w\d_-]+)$/i;
-var rexMatchInject = /(<!--inject:([a-z]+)-->)(\s?.*?)(<!--inject:stop-->)/gi;
-
-var links;
-
-function injectReplace(fullMatch, openingTag, tagType, indentation, closingTag) {
-  if(tagType == 'js') {
-    return '';
-  }
-  if(tagType == 'css') {
-    return '';
-  }
-}
-
+// Default Options
 var defaultOptions = {
-  attributes: {
-    'css': {
-      rel: 'stylesheet',
-      type: 'text/css'
-    },
-    'js': null
-  },
-  basePaths: ['./public/_css', './public/_js'],
-  hash: true,
-  omit: './public',
-  source: './public/index.html'
+  basePaths: [],
+  hashLength: 8
 };
+
+var options,
+    start;
 
 module.exports = function(opts) {
 
-  var options = objectAssign({}, defaultOptions, opts);
-  // console.log(options);
-  // console.log(generateReference('js', 'me.js', options));
+  start = performance();
 
-  if(options.hash) {
-    for (var i = options.basePaths.length - 1; i >= 0; i--) {
-      hash(options.basePaths[i]);
-    }
+  options = deepAssign(defaultOptions, opts);
+  getFiles(options.basePaths)
+    .then(generateHashes)
+    .then(renameFiles)
+    .then(output)
+    .catch(output);
+
+};
+
+function getFiles(folders) {
+
+  var deferred = q.defer();
+  var folderCount = folders.length;
+  var listOfFiles = [];
+  if(!folderCount) {
+    deferred.reject('No folders specified.');
   }
 
-}
+  folders.forEach(function(folder) {
 
-function generateReference(type, path, options) {
+    fs.readdir(folder, function(error, files) {
 
-  // Build extra attributes
-  var attributesString = '';
-  if(options.attributes[type]) {
-    for(var opt in options.attributes[type]) {
-      if(options.attributes[type][opt] === true) {
-        attributesString = attributesString + ' ' + opt;
-      } else {
-        attributesString = attributesString + ' ' + opt + '="' + options.attributes[type][opt] + '"';
+      if(error) {
+        deferred.reject(error);
       }
-    }
-  }
 
-  if(type == 'js') {
-    return '<script src="'+path+'"' + attributesString + '></script>';
-  }
+      files.map(function(file) {
+        return path.join(folder, file);
+      }).filter(function(file) {
+        return fs.statSync(file).isFile();
+      }).forEach(function(file) {
+        listOfFiles.push(file);
+      });
 
-  if(type == 'css') {
-    return '<link href="'+path+'"' + attributesString + '>';
-  }
+      folderCount--;
 
-}
+      if(folderCount === 0) {
+        deferred.resolve(listOfFiles);
+      }
 
-function hash(basePath) {
-
-  fs.readdir(basePath, function(error, files) {
-
-    if(error) {
-      return console.log('Error in reading directory', basePath);
-    }
-
-    for (var i = files.length - 1; i >= 0; i--) {
-
-      var absolutePath = basePath + '/' + files[i];
-
-      console.log(absolutePath);
-
-      console.log(generateNewFilename(absolutePath));
-
-      // fs.readFile(absolutePath, function (error, buffer) {
-
-      //   if(error) {
-      //     return console.log('Error in reading file', absolutePath);
-      //   }
-
-      //   var generatedHash = md5(buffer.toString());
-      //   var newFilePath = absolutePath.replace(rexMatchExtension, '.' + generatedHash + '$1');
-
-      //   console.log('will rename', newFilePath);
-
-      //   // fs.rename(absolutePath, newFilePath, function(error) {
-      //   //   if(error) {
-      //   //     return console.info('Error in renaming:', error);
-      //   //   }
-      //   // });
-
-      // });
-
-    }
+    });
 
   });
 
+  return deferred.promise;
+
 }
 
-function generateNewFilename(file) {
+function generateHashes(files) {
 
-  fs.readFile(file, function(error, buffer) {
+  var deferred = q.defer();
+  var fileCount = files.length;
+  var fileArray = [];
 
-    if(error) {
-      return console.log('Error in reading file', file);
-    }
+  files.forEach(function(file) {
 
-    // console.log(md5(buffer.toString());
+    fs.readFile(file, function(error, contents) {
+
+      if(error) {
+        deferred.reject(error);
+      }
+
+      var fileDetails = path.parse(file);
+
+      fileArray.push({
+        dir: fileDetails.dir,
+        ext: fileDetails.ext,
+        hash: md5(contents.toString()),
+        name: fileDetails.name,
+        path: file
+      });
+
+      fileCount--;
+
+      if(fileCount === 0) {
+        deferred.resolve(fileArray);
+      }
+
+    });
 
   });
 
+  return deferred.promise;
+
 }
 
-// function inject() {
+function renameFiles(files) {
 
-//   fs.readFile(source, function(error, buffer) {
+  var deferred = q.defer();
+  var fileCount = files.length;
 
-//     if(error) {
-//       return console.log('Error in reading file', source);
-//     }
+  files.forEach(function(file) {
 
-//     var sourceString = buffer.toString();
+    var newFilename = file.dir + '/' + file.name + '.' + (file.hash).substring(0, options.hashLength) + file.ext;
 
-//     fs.readdir(path, function(error, files) {
+    fs.rename(file.path, newFilename, function(error) {
 
-//       if(error) {
-//         return console.log('Error in reading directory', path);
-//       }
+      if(error) {
+        deferred.reject(error);
+      }
 
-//       links = '';
-//       for (var i = files.length - 1; i >= 0; i--) {
-//         var absolutePath = path + '/' + files[i];
-//         links = links + generateLink(absolutePath);
-//         if(i == (files.length - 1)) {
-//           links = links + '\n';
-//         }
-//       }
+      fileCount--;
 
-//       var newSource = sourceString.replace(rexMatchInject, injectReplace);
-//       console.log(newSource);
+      if(fileCount === 0) {
+        deferred.resolve();
+      }
 
-//     });
+    });
 
-//   });
+  });
 
-// }
+  return deferred.promise;
+
+}
+
+function output(error) {
+
+  var totalTime = (performance() - start).toFixed(2);
+  var introString = 'AssetInjector - took ' + totalTime + 'ms';
+
+  if(error) {
+    console.log(introString.red.underline);
+    console.log('Error:'.red, error);
+  } else {
+    console.log(introString.green.underline);
+    console.log('All files successfully hashbusted!'.green);
+  }
+
+}
