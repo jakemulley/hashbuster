@@ -143,7 +143,7 @@ function renameFiles(files) {
 function output(error) {
 
   var totalTime = (performance() - start).toFixed(2);
-  var introString = 'AssetInjector - took ' + totalTime + 'ms';
+  var introString = 'Hashbuster - took ' + totalTime + 'ms';
 
   if(error) {
     console.log(introString.red.underline);
