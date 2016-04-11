@@ -52,6 +52,9 @@ function getFiles(folders) {
         return path.join(folder, file);
       }).filter(function(file) {
         return fs.statSync(file).isFile();
+      }).filter(function(file) {
+        var fileDetails = path.parse(file);
+        return (fileDetails.ext != '.css' && fileDetails.ext != '.js') ? false : true;
       }).forEach(function(file) {
         listOfFiles.push(file);
       });
@@ -140,7 +143,7 @@ function renameFiles(files) {
 function output(error) {
 
   var totalTime = (performance() - start).toFixed(2);
-  var introString = 'AssetInjector - took ' + totalTime + 'ms';
+  var introString = 'Hashbuster - took ' + totalTime + 'ms';
 
   if(error) {
     console.log(introString.red.underline);

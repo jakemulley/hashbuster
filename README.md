@@ -20,8 +20,8 @@ hashLength: 8
 ## Usage
 ### NPM
 ```
-var injector = require('./hashbuster');
-injector({ basePaths: ['public/_css'] });
+var hasher = require('./hashbuster');
+hasher({ basePaths: ['public/_css'] });
 ```
 
 ### Gulp
