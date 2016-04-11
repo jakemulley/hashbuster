@@ -52,6 +52,9 @@ function getFiles(folders) {
         return path.join(folder, file);
       }).filter(function(file) {
         return fs.statSync(file).isFile();
+      }).filter(function(file) {
+        var fileDetails = path.parse(file);
+        return (fileDetails.ext != '.css' && fileDetails.ext != '.js') ? false : true;
       }).forEach(function(file) {
         listOfFiles.push(file);
       });
