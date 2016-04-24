@@ -1,6 +1,6 @@
 {
   "name": "hashbuster",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Append an md5 hash to file names.",
   "main": "index.js",
   "scripts": {
