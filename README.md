@@ -1,6 +1,6 @@
 Hashbuster
 ==========
-> A simple asset pipelines with NPM. Also checkout [Asset Injector](https://github.com/jakemulley/assetinjector), which goes hand in hand with Hashbuster.
+> Append an md5 hash to file names. Also checkout [Asset Injector](https://github.com/jakemulley/assetinjector), which goes hand in hand with Hashbuster to create an asset pipeline.
 
 ## Installation
 ```
