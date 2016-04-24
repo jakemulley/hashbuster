@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1
+* Fix grammar mistake
+
 ## 1.0.0
 * Initial production-ready version
 * Write Mocha tests
